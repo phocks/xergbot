@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { login } from "masto";
+import { to as wrap } from "await-to-js";
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -26,20 +27,28 @@ async function main() {
     for (const item of batch) {
       const { id } = item;
 
-      const [rel] = await masto.accounts.fetchRelationships([id]);
-      await sleep(1000);
+      const [relError, rels] = await wrap(
+        masto.accounts.fetchRelationships([id])
+      );
+      // await sleep(1000);
+      if (relError) console.error(relError);
+      if (!rels) continue;
+      const rel = rels[0];
+
       console.log("Is muting?", rel?.muting);
-      if (rel?.muting) {
-        console.log("Already muting... continuing");
+      if (!rel?.muting) {
+        console.log("Not muting ok continue");
         continue;
       }
 
-      console.log("Let's mute");
+      console.log("Let's unute");
 
-      const relationship = await masto.accounts.mute(id, {
-        notifications: false,
-      });
-      await sleep(1000);
+      const [unmuteError, relationship] = await wrap(masto.accounts.unmute(id));
+      if (unmuteError) console.error(unmuteError);
+      // const relationship = await masto.accounts.unmute(id, {
+      //   notifications: false,
+      // });
+      // await sleep(1000);
       console.log("Now muting?", relationship?.muting);
     }
   }
