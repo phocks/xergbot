@@ -14,28 +14,34 @@ async function main() {
     accessToken: process.env.AccessToken,
   });
 
-  let allFollowing: any = [];
   for await (const batch of masto.accounts.getFollowingIterable(id, {})) {
+    // const idsInBatch = batch.map((account) => account.id);
+    // console.log(idsInBatch);
+    // const rels = await masto.accounts.fetchRelationships([
+    //   "109288805396558025",
+    //   "109301500125171531",
+    // ]);
+    // console.log(rels);
+
     for (const item of batch) {
       const { id } = item;
 
       const [rel] = await masto.accounts.fetchRelationships([id]);
-      if (!rel?.muting) continue;
+      await sleep(1000);
+      console.log("Is muting?", rel?.muting);
+      if (rel?.muting) {
+        console.log("Already muting... continuing");
+        continue;
+      }
+
+      console.log("Let's mute");
 
       const relationship = await masto.accounts.mute(id, {
         notifications: false,
       });
-      console.log(relationship);
-      allFollowing = [...allFollowing, item];
-
-      await sleep(2000);
+      await sleep(1000);
+      console.log("Now muting?", relationship?.muting);
     }
-  }
-
-  console.log("Number of accounts:", allFollowing.length);
-
-  for (const account of allFollowing) {
-    // console.log(account.id)
   }
 }
 
