@@ -1,4 +1,5 @@
 import { login } from "masto";
+import { MastoClient, Account } from "masto";
 
 const getMasto = async () => {
   const masto = await login({
@@ -9,4 +10,18 @@ const getMasto = async () => {
   return masto;
 };
 
-export { getMasto };
+const getAllFollowing = async ({
+  masto,
+  id,
+}: {
+  masto: MastoClient;
+  id: string;
+}) => {
+  let allFollowing: Account[] = [];
+  for await (const batch of masto.accounts.getFollowingIterable(id, {})) {
+    allFollowing = [...allFollowing, ...batch];
+  }
+  return allFollowing;
+};
+
+export { getMasto, getAllFollowing };
