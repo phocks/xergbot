@@ -1,5 +1,6 @@
 import { to as wrap } from "await-to-js";
 import { MastoClient } from "masto";
+import { sleep } from "../utils/common";
 
 const muteAll = async (masto: MastoClient, id: string) => {
   for await (const batch of masto.accounts.getFollowingIterable(id, {})) {
@@ -31,7 +32,7 @@ const muteAll = async (masto: MastoClient, id: string) => {
   }
 };
 
-const unmuteAll = async (masto: MastoClient, id) => {
+const unmuteAll = async (masto: MastoClient, id: string) => {
   for await (const batch of masto.accounts.getFollowingIterable(id, {})) {
     const idsInBatch = batch.map((account) => account.id);
     console.log(idsInBatch);
@@ -57,4 +58,51 @@ const unmuteAll = async (masto: MastoClient, id) => {
   }
 };
 
-export { muteAll, unmuteAll };
+const unfollowNotFollowing = async (masto: MastoClient, id: string) => {
+  for await (const batch of masto.accounts.getFollowingIterable(id, {})) {
+    const idsInBatch = batch.map((account) => account.id);
+    const rels = await masto.accounts.fetchRelationships(idsInBatch);
+
+    for (const rel of rels) {
+      if (!rel) continue;
+      const { id } = rel;
+
+      console.log("Now checking", id);
+
+      await sleep(250);
+
+      if (rel.followedBy) {
+        console.log("Already being followed by... ");
+        continue;
+      }
+
+      console.log("They don't follow!");
+
+      const [unfollowError, relationship] = await wrap(
+        masto.accounts.unfollow(id)
+      );
+      if (unfollowError) console.error(unfollowError);
+
+      await sleep(250);
+
+      console.log(
+        `Should now be not following ${id}? Right? ${relationship?.muting}`
+      );
+
+      // console.log("Is muting?", rel?.muting);
+      // if (!rel?.muting) {
+      //   console.log("Unmuted already ok continue!!!");
+      //   continue;
+      // }
+
+      // console.log("Let's unmute...");
+
+      // const [unmuteError, relationship] = await wrap(masto.accounts.unmute(id));
+      // if (unmuteError) console.error(unmuteError);
+
+      // console.log("Now muting??", relationship?.muting);
+    }
+  }
+};
+
+export { muteAll, unmuteAll, unfollowNotFollowing };
