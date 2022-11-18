@@ -92,10 +92,11 @@ const unfollowNotFollowing = async (masto: MastoClient, id: string) => {
   }
 };
 
-const unfollowAll = async (masto: MastoClient, id: string) => {
-  for await (const batch of masto.accounts.getFollowingIterable(id, {})) {
+const unfollowAll = async (masto: MastoClient, myId: string) => {
+  for await (const batch of masto.accounts.getFollowingIterable(myId, {})) {
     for (const account of batch) {
-      console.log(`Unfollowing: ${account?.username}`);
+      const { id } = account;
+      console.log(`Unfollowing: ${account?.acct}`);
       const [unfollowError, relationship] = await wrap(
         masto.accounts.unfollow(id)
       );
