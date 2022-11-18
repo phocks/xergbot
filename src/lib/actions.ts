@@ -69,7 +69,7 @@ const unfollowNotFollowing = async (masto: MastoClient, id: string) => {
 
       console.log("Now checking", id);
 
-      await sleep(250);
+      await sleep(100);
 
       if (rel.followedBy) {
         console.log("Already being followed by... ");
@@ -83,26 +83,25 @@ const unfollowNotFollowing = async (masto: MastoClient, id: string) => {
       );
       if (unfollowError) console.error(unfollowError);
 
-      await sleep(250);
+      await sleep(100);
 
       console.log(
         `Should now be not following ${id}? Right? ${relationship?.muting}`
       );
-
-      // console.log("Is muting?", rel?.muting);
-      // if (!rel?.muting) {
-      //   console.log("Unmuted already ok continue!!!");
-      //   continue;
-      // }
-
-      // console.log("Let's unmute...");
-
-      // const [unmuteError, relationship] = await wrap(masto.accounts.unmute(id));
-      // if (unmuteError) console.error(unmuteError);
-
-      // console.log("Now muting??", relationship?.muting);
     }
   }
 };
 
-export { muteAll, unmuteAll, unfollowNotFollowing };
+const unfollowAll = async (masto: MastoClient, id: string) => {
+  for await (const batch of masto.accounts.getFollowingIterable(id, {})) {
+    for (const account of batch) {
+      console.log(`Unfollowing: ${account?.username}`);
+      const [unfollowError, relationship] = await wrap(
+        masto.accounts.unfollow(id)
+      );
+      if (unfollowError) console.error(unfollowError);
+    }
+  }
+};
+
+export { muteAll, unmuteAll, unfollowNotFollowing, unfollowAll };
