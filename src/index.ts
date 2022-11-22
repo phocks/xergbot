@@ -5,7 +5,12 @@ import * as fs from "fs";
 import { to as wrap } from "await-to-js";
 
 import { getMasto, getAllFollowing } from "./lib/masto";
-import { muteAll, unmuteAll } from "./lib/actions";
+import {
+  muteAll,
+  unmuteAll,
+  unfollowNotFollowing,
+  unfollowAll,
+} from "./lib/actions";
 import { sleep } from "./utils/common";
 
 const id: string = process.env.MyId as string;
