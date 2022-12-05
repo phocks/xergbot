@@ -14,10 +14,15 @@ import { sleep } from "./utils/common";
 
 const id: string = process.env.MyId as string;
 
-async function main() {
+async function main(): Promise<void> {
   const [mastoErr, masto] = await wrap(getMasto());
 
-  await unfollowAll(masto, id);
+  if (mastoErr) {
+    console.error(mastoErr);
+    return;
+  }
+
+  await unfollowNotFollowing(masto, id);
 }
 
 main().catch((error) => {
