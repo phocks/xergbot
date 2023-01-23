@@ -69,7 +69,7 @@ const unfollowNotFollowing = async (masto: MastoClient, id: string) => {
 
       console.log("Now checking", id);
 
-      await sleep(100);
+      await sleep(1000);
 
       if (rel.followedBy) {
         console.log("Already being followed by... ");
@@ -83,7 +83,7 @@ const unfollowNotFollowing = async (masto: MastoClient, id: string) => {
       );
       if (unfollowError) console.error(unfollowError);
 
-      await sleep(100);
+      await sleep(1000);
 
       console.log(
         `Should now be not following ${id}? Right? ${relationship?.muting}`
