@@ -86,7 +86,7 @@ const unfollowNotFollowing = async (masto: MastoClient, id: string) => {
       await sleep(1000);
 
       console.log(
-        `Should now be not following ${id}? Right? ${relationship?.muting}`
+        `Should now be not following ${id}? Is following: ${relationship?.following}`
       );
     }
   }
