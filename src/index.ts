@@ -15,6 +15,7 @@ import { sleep } from "./utils/common";
 
 const id: string = process.env.MyId as string;
 
+// The main execution function
 async function main(): Promise<void> {
   const [mastoErr, masto] = await wrap(getMasto());
 
@@ -23,6 +24,7 @@ async function main(): Promise<void> {
     return;
   }
 
+  // Put your actions here:
   await unfollowNotFollowing(masto, id);
 }
 
