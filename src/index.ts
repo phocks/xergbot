@@ -20,6 +20,7 @@ async function main(): Promise<void> {
   const [mastoErr, masto] = await wrap(getMasto());
 
   if (mastoErr) {
+    console.log("Error getting masto client")
     console.error(mastoErr);
     return;
   }
